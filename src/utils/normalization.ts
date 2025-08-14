@@ -25,5 +25,5 @@ export function normalizePropertyType(type: PropertyType): number {
 }
 
 export function getWindowUValue(windowType: string): number {
-  return windowTypes[windowType as keyof typeof windowTypes]?.uValue || windowTypes.double.uValue;
+  return windowTypes[windowType as keyof typeof windowTypes]?.uValue || windowTypes['wood-pvc-double'].uValue;
 }
