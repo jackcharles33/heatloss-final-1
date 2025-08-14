@@ -1,7 +1,7 @@
 import { BaseHouseData } from '../types/HouseData';
-import { wallTypes, floorTypes } from '../constants';
+import { wallTypes, floorTypes } from '../constants/buildingData';
 import { getWindowUValue } from './normalization';
-import { MODEL_CONSTANTS } from './constants/modelConstants';
+// import { MODEL_CONSTANTS } from './constants/modelConstants';
 
 export function calculateUValueFactor(input: Partial<BaseHouseData>): number {
   const wallUValue = wallTypes[input.wallType as keyof typeof wallTypes]?.uValue || 0.5;
