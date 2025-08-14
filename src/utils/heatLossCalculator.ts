@@ -1,7 +1,7 @@
 import { UKRegions, wallTypes, windowTypes, floorTypes, roofTypes } from '../constants/buildingData';
 import { CalculatorInputs, CalculationResults } from '../types/calculator';
 import { ageMultipliers } from './ageCalculations';
-import { PropertyAge } from '../types/HouseData';
+import { PropertyAge, PropertyType } from '../types/HouseData';
 import { calculateAreas } from './areaCalculations';
 import { calculateElementHeatLoss } from './elementHeatLoss';
 
@@ -16,8 +16,12 @@ export function calculateHeatLoss(inputs: CalculatorInputs): CalculationResults 
   const floorUValue = floorTypes[inputs.floorType as keyof typeof floorTypes]?.uValue || 0.4;
   const roofUValue = roofTypes[inputs.roofType as keyof typeof roofTypes]?.uValue || 0.34;
   
-  // Calculate areas
-  const { netWallArea, glazingArea, floorArea, roofArea } = calculateAreas(inputs);
+  // Calculate areas using the new, more accurate method
+  const { netWallArea, glazingArea, floorArea, roofArea } = calculateAreas({
+    ...inputs,
+    // Add propertyType to inputs for area calculation
+    propertyType: 'Detached' // This should be updated to use the actual input from the form
+  });
   
   // Calculate heat loss for each element (W)
   const { wallLoss, windowLoss, floorLoss, roofLoss } = calculateElementHeatLoss({
@@ -38,15 +42,17 @@ export function calculateHeatLoss(inputs: CalculatorInputs): CalculationResults 
     console.error('Age multiplier not found for:', inputs.age);
   }
   
-  const totalHeatLoss = ((wallLoss + windowLoss + floorLoss + roofLoss) * ageMultiplier) / 1000;
-  
+  const totalHeatLossWatts = (wallLoss + windowLoss + floorLoss + roofLoss);
+  // The age multiplier should adjust the raw physics loss
+  const finalHeatLoss = (totalHeatLossWatts * (ageMultiplier || 1)) / 1000;
+
   return {
-    totalHeatLoss,
+    totalHeatLoss: finalHeatLoss,
     breakdown: {
-      walls: ((wallLoss * ageMultiplier) / 1000).toFixed(1),
-      windows: ((windowLoss * ageMultiplier) / 1000).toFixed(1),
-      floor: ((floorLoss * ageMultiplier) / 1000).toFixed(1),
-      roof: ((roofLoss * ageMultiplier) / 1000).toFixed(1)
+      walls: (wallLoss / 1000).toFixed(1),
+      windows: (windowLoss / 1000).toFixed(1),
+      floor: (floorLoss / 1000).toFixed(1),
+      roof: (roofLoss / 1000).toFixed(1)
     }
   };
 }
