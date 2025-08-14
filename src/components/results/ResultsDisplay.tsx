@@ -39,7 +39,7 @@ export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
           gap: '8px',
           mb: 2
         }}>
-          <ArrowLeftRight size={16} color="#d85c9c" />
+          <ArrowLeftRight size={16} color="#ffffff" />
           <Typography 
             sx={{ 
               fontSize: '18px',
