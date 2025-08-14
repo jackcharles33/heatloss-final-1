@@ -44,7 +44,7 @@ export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
             sx={{ 
               fontSize: '18px',
               fontWeight: 600,
-              color: '#d8b4fe',
+              color: '#ffffff',
               fontFamily: 'Montserrat, sans-serif'
             }}
           >
