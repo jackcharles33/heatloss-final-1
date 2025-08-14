@@ -108,7 +108,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit }: HouseDiagramFor
             borderRadius: '10px',
             fontSize: '1.1rem',
             color: '#fff',
-            backgroundColor: '#d85c9c',
+            backgroundColor: '#f050f8',
             fontFamily: 'Montserrat, sans-serif',
             textTransform: 'none',
             '&:hover': {
