@@ -27,7 +27,7 @@ export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
       <TrafficLight heatLoss={prediction} />
       
       <Box sx={{ 
-        backgroundColor: '#301c34',
+        backgroundColor: '#180048',
         borderRadius: '24px',
         padding: '24px',
         width: '100%'
