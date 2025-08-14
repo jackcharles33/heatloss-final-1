@@ -2,7 +2,7 @@ import { PropertyAge, PropertyType } from '../types/HouseData';
 import { windowTypes } from '../constants/buildingData';
 
 export function getWindowUValue(windowType: string): number {
-  return windowTypes[windowType as keyof typeof windowTypes]?.uValue || windowTypes.double.uValue;
+  return windowTypes[windowType as keyof typeof windowTypes]?.uValue || windowTypes['wood-pvc-double'].uValue;
 }
 
 export function getAgeValue(age: PropertyAge): number {
