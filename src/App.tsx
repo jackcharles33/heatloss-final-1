@@ -42,7 +42,7 @@ function App() {
       <Paper 
         elevation={3}
         sx={{
-          backgroundColor: '#34244c',
+          backgroundColor: '#180048',
           borderRadius: '32px',
           p: 6,
           width: '100%',
