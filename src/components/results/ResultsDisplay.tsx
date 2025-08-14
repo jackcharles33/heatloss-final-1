@@ -12,7 +12,7 @@ interface ResultsDisplayProps {
 }
 
 export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
-  const [errorMargin, setErrorMargin] = useState<number>(prediction * 0.1);
+  const [errorMargin, setErrorMargin] = useState<number>(prediction * 0.075);
 
   useEffect(() => {
     const updateErrorMargin = async () => {
