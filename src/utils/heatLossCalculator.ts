@@ -1,7 +1,7 @@
 import { UKRegions, wallTypes, windowTypes, floorTypes, roofTypes } from '../constants/buildingData';
 import { CalculatorInputs, CalculationResults } from '../types/calculator';
 import { ageMultipliers } from './ageCalculations';
-import { PropertyAge, PropertyType } from '../types/HouseData';
+import { PropertyAge } from '../types/HouseData';
 import { calculateAreas } from './areaCalculations';
 import { calculateElementHeatLoss } from './elementHeatLoss';
 
