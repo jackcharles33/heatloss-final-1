@@ -1,38 +1,39 @@
-import { useState, useEffect } from 'react'; // 'React' has been removed from this line
+import { useState, useEffect } from 'react';
 import { Container, Box, Paper } from '@mui/material';
 import { PredictionForm } from './components/PredictionForm';
 import { ResultsDisplay } from './components/results/ResultsDisplay';
 import { HeatLossPredictor } from './utils/predictor';
 import { HouseData } from './types/HouseData';
-import { updateHubSpotDeal } from './services/api/calculations';
 
 const predictor = new HeatLossPredictor();
 
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
-  const [hubspotDealId, setHubspotDealId] = useState<string | null>(null);
+  const [dealId, setDealId] = useState<string | null>(null);
 
+  // Effect to read the dealId from the URL query parameter
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    const dealId = queryParams.get('dealId');
-    if (dealId) {
-      setHubspotDealId(dealId);
-      console.log(`HubSpot Deal ID found: ${dealId}`);
+    const hubspotDealId = queryParams.get('dealId');
+    if (hubspotDealId) {
+      setDealId(hubspotDealId);
+      console.log(`HubSpot Deal ID found: ${hubspotDealId}`);
     }
   }, []);
 
-  const handlePredict = async (input: Partial<HouseData>) => {
+  const handlePredict = (input: Partial<HouseData>) => {
     try {
-      // NOTE: This currently calls the old ML predictor.
-      // You will need to switch this to the new physics-based calculator.
-      const result = predictor.predict(input); 
+      const result = predictor.predict(input);
       setPrediction(result);
       setCurrentInput(input);
 
-      if (hubspotDealId) {
-        await updateHubSpotDeal(hubspotDealId, result);
-        alert('Heat loss calculated and HubSpot deal record updated!');
+      // If inside an iFrame (i.e., we have a dealId), post the result to the parent window (HubSpot)
+      if (dealId) {
+        window.parent.postMessage({
+          type: "HEATLOSS_RESULT",
+          heatLoss: result
+        }, 'https://app.hubspot.com'); // Target HubSpot's origin
       }
       return result;
     } catch (err) {
