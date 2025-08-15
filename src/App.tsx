@@ -4,40 +4,42 @@ import { PredictionForm } from './components/PredictionForm';
 import { ResultsDisplay } from './components/results/ResultsDisplay';
 import { HeatLossPredictor } from './utils/predictor';
 import { HouseData } from './types/HouseData';
+import { updateHubSpotDeal } from './services/api/calculations'; // Ensure this import is correct
 
 const predictor = new HeatLossPredictor();
 
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
-  const [dealId, setDealId] = useState<string | null>(null);
+  const [hubspotDealId, setHubspotDealId] = useState<string | null>(null);
   const [hubspotOrigin, setHubspotOrigin] = useState<string | null>(null);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    const hubspotDealId = queryParams.get('dealId');
+    const dealId = queryParams.get('dealId');
     const origin = queryParams.get('hubspotOrigin');
 
-    if (hubspotDealId) {
-      setDealId(hubspotDealId);
+    if (dealId) {
+      setHubspotDealId(dealId);
+      console.log(`HubSpot Deal ID found: ${dealId}`);
     }
     if (origin) {
       setHubspotOrigin(origin);
     }
   }, []);
 
-  const handlePredict = (input: Partial<HouseData>) => {
+  const handlePredict = async (input: Partial<HouseData>) => {
     try {
       const result = predictor.predict(input);
       setPrediction(result);
       setCurrentInput(input);
 
-      // If we received an origin from the URL, post the message back to it
-      if (hubspotOrigin) {
+      // If we have an origin AND a deal ID, post the message back
+      if (hubspotOrigin && hubspotDealId) {
         window.parent.postMessage({
           type: "HEATLOSS_RESULT",
           heatLoss: result
-        }, hubspotOrigin); // Use the dynamic origin
+        }, hubspotOrigin);
       }
       return result;
     } catch (err) {
