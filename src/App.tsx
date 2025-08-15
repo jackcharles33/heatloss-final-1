@@ -48,7 +48,7 @@ function App() {
           Heat Loss Calculator
         </h1>
       </Box>
-      <Paper elevation={3} sx={{ backgroundColor: '#34244c', borderRadius: '32px', p: 6, width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Paper elevation={3} sx={{ backgroundColor: '#180048', borderRadius: '32px', p: 6, width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Box sx={{ width: '100%', maxWidth: '600px' }}>
           <PredictionForm onPredict={handlePredict} />
           {prediction !== null && currentInput !== null && (
