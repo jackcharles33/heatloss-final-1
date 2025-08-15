@@ -4,7 +4,7 @@ import { PredictionForm } from './components/PredictionForm';
 import { ResultsDisplay } from './components/results/ResultsDisplay';
 import { HeatLossPredictor } from './utils/predictor';
 import { HouseData } from './types/HouseData';
-import { updateHubSpotDeal } from './services/api/calculations'; // Ensure this import is correct
+// 'updateHubSpotDeal' import has been removed from here
 
 const predictor = new HeatLossPredictor();
 
@@ -28,13 +28,13 @@ function App() {
     }
   }, []);
 
-  const handlePredict = async (input: Partial<HouseData>) => {
+  const handlePredict = (input: Partial<HouseData>) => {
     try {
       const result = predictor.predict(input);
       setPrediction(result);
       setCurrentInput(input);
 
-      // If we have an origin AND a deal ID, post the message back
+      // FIX: The check now correctly uses hubspotDealId from state
       if (hubspotOrigin && hubspotDealId) {
         window.parent.postMessage({
           type: "HEATLOSS_RESULT",
