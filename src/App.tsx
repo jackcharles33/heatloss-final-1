@@ -11,14 +11,18 @@ function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
   const [dealId, setDealId] = useState<string | null>(null);
+  const [hubspotOrigin, setHubspotOrigin] = useState<string | null>(null);
 
-  // Effect to read the dealId from the URL query parameter
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const hubspotDealId = queryParams.get('dealId');
+    const origin = queryParams.get('hubspotOrigin');
+
     if (hubspotDealId) {
       setDealId(hubspotDealId);
-      console.log(`HubSpot Deal ID found: ${hubspotDealId}`);
+    }
+    if (origin) {
+      setHubspotOrigin(origin);
     }
   }, []);
 
@@ -28,12 +32,12 @@ function App() {
       setPrediction(result);
       setCurrentInput(input);
 
-      // If inside an iFrame (i.e., we have a dealId), post the result to the parent window (HubSpot)
-      if (dealId) {
+      // If we received an origin from the URL, post the message back to it
+      if (hubspotOrigin) {
         window.parent.postMessage({
           type: "HEATLOSS_RESULT",
           heatLoss: result
-        }, 'https://app.hubspot.com'); // Target HubSpot's origin
+        }, hubspotOrigin); // Use the dynamic origin
       }
       return result;
     } catch (err) {
