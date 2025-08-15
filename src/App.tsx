@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; // 'React' has been removed from this line
 import { Container, Box, Paper } from '@mui/material';
 import { PredictionForm } from './components/PredictionForm';
 import { ResultsDisplay } from './components/results/ResultsDisplay';
@@ -24,7 +24,9 @@ function App() {
 
   const handlePredict = async (input: Partial<HouseData>) => {
     try {
-      const result = predictor.predict(input); // This should be the physics model now
+      // NOTE: This currently calls the old ML predictor.
+      // You will need to switch this to the new physics-based calculator.
+      const result = predictor.predict(input); 
       setPrediction(result);
       setCurrentInput(input);
 
