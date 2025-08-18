@@ -4,26 +4,20 @@ import { PredictionForm } from './components/PredictionForm';
 import { ResultsDisplay } from './components/results/ResultsDisplay';
 import { HeatLossPredictor } from './utils/predictor';
 import { HouseData } from './types/HouseData';
-// 'updateHubSpotDeal' import has been removed from here
 
 const predictor = new HeatLossPredictor();
 
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
-  const [hubspotDealId, setHubspotDealId] = useState<string | null>(null);
   const [hubspotOrigin, setHubspotOrigin] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("Vercel App: Component loaded. Checking for URL parameters."); // Debugging line
     const queryParams = new URLSearchParams(window.location.search);
-    const dealId = queryParams.get('dealId');
     const origin = queryParams.get('hubspotOrigin');
-
-    if (dealId) {
-      setHubspotDealId(dealId);
-      console.log(`HubSpot Deal ID found: ${dealId}`);
-    }
     if (origin) {
+      console.log(`Vercel App: Received HubSpot Origin: ${origin}`); // Debugging line
       setHubspotOrigin(origin);
     }
   }, []);
@@ -34,8 +28,8 @@ function App() {
       setPrediction(result);
       setCurrentInput(input);
 
-      // FIX: The check now correctly uses hubspotDealId from state
-      if (hubspotOrigin && hubspotDealId) {
+      if (hubspotOrigin) {
+        console.log(`Vercel App: Sending message to origin: ${hubspotOrigin}`); // Debugging line
         window.parent.postMessage({
           type: "HEATLOSS_RESULT",
           heatLoss: result
