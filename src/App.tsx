@@ -5,20 +5,20 @@ import { ResultsDisplay } from './components/results/ResultsDisplay';
 import { HeatLossPredictor } from './utils/predictor';
 import { HouseData } from './types/HouseData';
 
+// This declares the HubSpot functions for TypeScript
+declare const hubspot: any;
+
 const predictor = new HeatLossPredictor();
 
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
-  const [hubspotOrigin, setHubspotOrigin] = useState<string | null>(null);
+  const [isInHubSpot, setIsInHubSpot] = useState(false);
 
   useEffect(() => {
-    console.log("Vercel App: Component loaded. Checking for URL parameters."); // Debugging line
-    const queryParams = new URLSearchParams(window.location.search);
-    const origin = queryParams.get('hubspotOrigin');
-    if (origin) {
-      console.log(`Vercel App: Received HubSpot Origin: ${origin}`); // Debugging line
-      setHubspotOrigin(origin);
+    // Check if the app is running inside a HubSpot iFrame
+    if (window.self !== window.top) {
+      setIsInHubSpot(true);
     }
   }, []);
 
@@ -28,12 +28,11 @@ function App() {
       setPrediction(result);
       setCurrentInput(input);
 
-      if (hubspotOrigin) {
-        console.log(`Vercel App: Sending message to origin: ${hubspotOrigin}`); // Debugging line
-        window.parent.postMessage({
-          type: "HEATLOSS_RESULT",
-          heatLoss: result
-        }, hubspotOrigin);
+      // If we are inside a HubSpot iFrame, close it and pass the data back
+      if (isInHubSpot) {
+        hubspot.ui.extensions.closeIframe({
+          heatLoss: result,
+        });
       }
       return result;
     } catch (err) {
