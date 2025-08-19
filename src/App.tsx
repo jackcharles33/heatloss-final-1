@@ -5,7 +5,7 @@ import { ResultsDisplay } from './components/results/ResultsDisplay';
 import { HeatLossPredictor } from './utils/predictor';
 import { HouseData } from './types/HouseData';
 
-// This declares the HubSpot functions for TypeScript
+// Declares the HubSpot global object for TypeScript
 declare const hubspot: any;
 
 const predictor = new HeatLossPredictor();
@@ -13,14 +13,19 @@ const predictor = new HeatLossPredictor();
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
-  const [isInHubSpot, setIsInHubSpot] = useState(false);
+  const [isHubSpotReady, setIsHubSpotReady] = useState(false);
 
   useEffect(() => {
-    // Check if the app is running inside a HubSpot iFrame
-    if (window.self !== window.top) {
-      setIsInHubSpot(true);
+    // This effect runs once when the app loads.
+    // It checks if it's in an iFrame and waits for the HubSpot
+    // communication bridge to be ready.
+    if (window.self !== window.top && typeof hubspot !== 'undefined') {
+      hubspot.ready().then(() => {
+        // Now we are sure HubSpot is ready to receive messages
+        setIsHubSpotReady(true);
+      });
     }
-  }, []);
+  }, []); // The empty array ensures this runs only once on mount
 
   const handlePredict = (input: Partial<HouseData>) => {
     try {
@@ -28,8 +33,9 @@ function App() {
       setPrediction(result);
       setCurrentInput(input);
 
-      // If we are inside a HubSpot iFrame, close it and pass the data back
-      if (isInHubSpot) {
+      // If the HubSpot bridge is ready, close the iFrame and
+      // send the calculated value back to the CRM card.
+      if (isHubSpotReady) {
         hubspot.ui.extensions.closeIframe({
           heatLoss: result,
         });
