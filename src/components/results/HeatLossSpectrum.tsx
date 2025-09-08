@@ -51,11 +51,12 @@ interface HeatLossSpectrumProps {
 export function HeatLossSpectrum({ prediction, errorMargin }: HeatLossSpectrumProps) {
   const minValue = prediction - errorMargin;
   const maxValue = prediction + errorMargin;
-  
+ 
   const getPosition = (value: number) => ((value - minValue) / (maxValue - minValue)) * 100;
   const position = getPosition(prediction);
 
-  const formatValue = (value: number) => Number(value.toFixed(1));
+  // FIX: This now rounds the number to the nearest whole Watt and adds commas for readability
+  const formatValue = (value: number) => Math.round(value).toLocaleString();
 
   return (
     <Box sx={{ width: '100%', padding: '0 24px' }}>
