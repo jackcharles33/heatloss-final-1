@@ -52,7 +52,7 @@ interface TrafficLightProps {
 }
 
 export function TrafficLight({ heatLoss }: TrafficLightProps) {
-  const threshold = 10.8;
+  const threshold = 10800;
   const margin = threshold * 0.15;
 
   let backgroundColor: string;
@@ -74,7 +74,7 @@ export function TrafficLight({ heatLoss }: TrafficLightProps) {
       <Content>
         <HeatLossValue>
           {heatLoss.toFixed(1)}
-          <span className="unit">kW</span>
+          <span className="unit">W</span>
         </HeatLossValue>
 
         <Message>

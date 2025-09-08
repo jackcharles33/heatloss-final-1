@@ -64,10 +64,10 @@ export function HeatLossSpectrum({ prediction, errorMargin }: HeatLossSpectrumPr
           <Marker position={position} />
         </GradientBar>
         <Value sx={{ left: 0, transform: 'translateX(0)' }}>
-          {formatValue(minValue)} kW
+          {formatValue(minValue)} W
         </Value>
         <Value sx={{ right: 0, left: 'auto', transform: 'translateX(0)' }}>
-          {formatValue(maxValue)} kW
+          {formatValue(maxValue)} W
         </Value>
       </SpectrumContainer>
     </Box>
