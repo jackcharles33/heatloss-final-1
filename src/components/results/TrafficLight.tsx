@@ -73,7 +73,8 @@ export function TrafficLight({ heatLoss }: TrafficLightProps) {
     <Container sx={{ backgroundColor }}>
       <Content>
         <HeatLossValue>
-          {heatLoss.toFixed(1)}
+          {/* FIX: This now rounds the number to the nearest whole Watt and adds commas for readability */}
+          {Math.round(heatLoss).toLocaleString()}
           <span className="unit">W</span>
         </HeatLossValue>
 
