@@ -44,7 +44,7 @@ export function calculateHeatLoss(inputs: CalculatorInputs): CalculationResults 
   
   const totalHeatLossWatts = (wallLoss + windowLoss + floorLoss + roofLoss);
   // The age multiplier should adjust the raw physics loss
-  const finalHeatLoss = (totalHeatLossWatts * (ageMultiplier || 1));
+  const finalHeatLoss = (totalHeatLossWatts * (ageMultiplier || 1) * 1000);
 
   return {
     totalHeatLoss: finalHeatLoss,
