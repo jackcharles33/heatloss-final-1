@@ -1,46 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Container, Box, Paper } from '@mui/material';
 import { PredictionForm } from './components/PredictionForm';
 import { ResultsDisplay } from './components/results/ResultsDisplay';
-import { HeatLossPredictor } from './utils/predictor';
+// FIX: Import the correct, physics-based calculator function
+import { calculateHeatLoss } from './utils/heatLossCalculator'; 
 import { HouseData } from './types/HouseData';
-
-// Declares the HubSpot global object for TypeScript
-declare const hubspot: any;
-
-const predictor = new HeatLossPredictor();
+import { CalculatorInputs } from './types/calculator';
 
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
-  const [isHubSpotReady, setIsHubSpotReady] = useState(false);
-
-  useEffect(() => {
-    // This effect runs once when the app loads.
-    // It checks if it's in an iFrame and waits for the HubSpot
-    // communication bridge to be ready.
-    if (window.self !== window.top && typeof hubspot !== 'undefined') {
-      hubspot.ready().then(() => {
-        // Now we are sure HubSpot is ready to receive messages
-        setIsHubSpotReady(true);
-      });
-    }
-  }, []); // The empty array ensures this runs only once on mount
 
   const handlePredict = (input: Partial<HouseData>) => {
     try {
-      const result = predictor.predict(input);
-      setPrediction(result);
-      setCurrentInput(input);
+      // Map the form data to the format the new calculator expects
+      const calculatorInputs: CalculatorInputs = {
+        floorArea: String(input.size || '100'),
+        age: input.age || 'BETWEEN_1960_2000',
+        propertyType: input.propertyType || 'Semi-Detached / End-Terrace',
+        wallType: input.wallType || 'cavity-post60-290-310-filled',
+        windowType: input.windowType || 'wood-pvc-double',
+        floorType: input.floorType || 'concrete-75',
+        roofType: input.roofType || 'pitched-100',
+        // Add default values for parameters not in the simple form
+        stories: 2,
+        indoorTemp: 21,
+        glazingRatio: 20,
+        region: 'london',
+        postcode: '',
+      };
 
-      // If the HubSpot bridge is ready, close the iFrame and
-      // send the calculated value back to the CRM card.
-      if (isHubSpotReady) {
-        hubspot.ui.extensions.closeIframe({
-          heatLoss: result,
-        });
-      }
-      return result;
+      // FIX: Call the correct, physics-based calculator
+      const result = calculateHeatLoss(calculatorInputs);
+      
+      // The result is now the large Watt value (e.g., 8900)
+      setPrediction(result.totalHeatLoss); 
+      setCurrentInput(input);
+      
+      return result.totalHeatLoss;
     } catch (err) {
       console.error('Error making prediction:', err);
       return 0;
@@ -57,6 +54,7 @@ function App() {
       <Paper elevation={3} sx={{ backgroundColor: '#180048', borderRadius: '32px', p: 6, width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Box sx={{ width: '100%', maxWidth: '600px' }}>
           <PredictionForm onPredict={handlePredict} />
+          
           {prediction !== null && currentInput !== null && (
             <Box sx={{ width: '100%', mt: 4 }}>
               <ResultsDisplay prediction={prediction} inputs={currentInput} />
