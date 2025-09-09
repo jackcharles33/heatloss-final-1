@@ -1,3 +1,5 @@
+import { PropertyType } from "./HouseData";
+
 export interface CalculatorInputs {
   region: string;
   postcode: string;
@@ -10,6 +12,8 @@ export interface CalculatorInputs {
   indoorTemp: number;
   glazingRatio: number;
   age: string;
+  // FIX: This property was missing
+  propertyType: PropertyType; 
 }
 
 export interface HeatLossBreakdown {
@@ -17,6 +21,7 @@ export interface HeatLossBreakdown {
   windows: string;
   floor: string;
   roof: string;
+  ventilation?: string;
 }
 
 export interface CalculationResults {
