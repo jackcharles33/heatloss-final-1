@@ -30,6 +30,7 @@ function App() {
         postcode: '',
       };
 
+      
       // FIX: Call the correct, physics-based calculator
       const result = calculateHeatLoss(calculatorInputs);
       
