@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Container, Box, Paper } from '@mui/material';
 import { PredictionForm } from './components/PredictionForm';
-import { ResultsDisplay } from './components/results/ResultsDisplay';
-// FIX: Import the correct, physics-based calculator function
+import { ResultsDisplay } from './components/results/ResultsDisplay'; 
 import { calculateHeatLoss } from './utils/heatLossCalculator'; 
 import { HouseData } from './types/HouseData';
 import { CalculatorInputs } from './types/calculator';
@@ -13,16 +12,14 @@ function App() {
 
   const handlePredict = (input: Partial<HouseData>) => {
     try {
-      // Map the form data to the format the new calculator expects
       const calculatorInputs: CalculatorInputs = {
-        floorArea: String(input.size || '100'),
+        floorArea: String(input.size || '100'), // This line is now correct
         age: input.age || 'BETWEEN_1960_2000',
         propertyType: input.propertyType || 'Semi-Detached / End-Terrace',
         wallType: input.wallType || 'cavity-post60-290-310-filled',
         windowType: input.windowType || 'wood-pvc-double',
         floorType: input.floorType || 'concrete-75',
         roofType: input.roofType || 'pitched-100',
-        // Add default values for parameters not in the simple form
         stories: 2,
         indoorTemp: 21,
         glazingRatio: 20,
@@ -30,12 +27,9 @@ function App() {
         postcode: '',
       };
 
-      
-      // FIX: Call the correct, physics-based calculator
       const result = calculateHeatLoss(calculatorInputs);
       
-      // The result is now the large Watt value (e.g., 8900)
-      setPrediction(result.totalHeatLoss); 
+      setPrediction(result.totalHeatLoss);
       setCurrentInput(input);
       
       return result.totalHeatLoss;
