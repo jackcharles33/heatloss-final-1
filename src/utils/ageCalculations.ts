@@ -2,10 +2,10 @@ import { PropertyAge } from '../types/HouseData';
 import { wallTypes } from '../constants/buildingData';
 
 export const ageMultipliers: Record<PropertyAge, number> = {
-  'PRE_1960': 1.05,          // Slight increase for older construction quality
-  'BETWEEN_1960_2000': 1.0,  // Establish this as the baseline
-  'BETWEEN_2000_2008': 0.95, // 5% improvement due to better standards
-  'POST_2008': 0.9           // 10% improvement for modern, well-built homes
+  'PRE_1960': 1.1,          // Slight increase for older construction quality
+  'BETWEEN_1960_2000': 1.075,  // Establish this as the baseline
+  'BETWEEN_2000_2008': 1.05, // 5% improvement due to better standards
+  'POST_2008': 0.95           // 10% improvement for modern, well-built homes
 };
 
 export function getAvailableWallTypes(age: PropertyAge) {
