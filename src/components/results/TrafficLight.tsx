@@ -52,20 +52,21 @@ interface TrafficLightProps {
 }
 
 export function TrafficLight({ heatLoss }: TrafficLightProps) {
-  const threshold = 10800;
-  const margin = threshold * 0.15;
+  // This is the line to change
+  const threshold = 11200; 
+  const margin = threshold * 0.15; // The amber range will adjust automatically
 
   let backgroundColor: string;
   let message: string;
 
   if (heatLoss > threshold) {
-    backgroundColor = '#ef4444';
+    backgroundColor = '#ef4444'; // Red
     message = "Do Not Book Survey";
   } else if (heatLoss > threshold - margin) {
-    backgroundColor = '#f59e0b';
+    backgroundColor = '#f59e0b'; // Amber
     message = "Must Get TL Approval Before Booking";
   } else {
-    backgroundColor = '#22c55e';
+    backgroundColor = '#22c55e'; // Green
     message = "Book Survey";
   }
 
@@ -73,7 +74,6 @@ export function TrafficLight({ heatLoss }: TrafficLightProps) {
     <Container sx={{ backgroundColor }}>
       <Content>
         <HeatLossValue>
-          {/* FIX: This now rounds the number to the nearest whole Watt and adds commas for readability */}
           {Math.round(heatLoss).toLocaleString()}
           <span className="unit">W</span>
         </HeatLossValue>
