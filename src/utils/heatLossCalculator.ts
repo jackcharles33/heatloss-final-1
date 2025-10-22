@@ -20,7 +20,7 @@ export function calculateHeatLoss(inputs: CalculatorInputs): CalculationResults 
   const { netWallArea, glazingArea, floorArea, roofArea } = calculateAreas({
     ...inputs,
     // Add propertyType to inputs for area calculation
-    propertyType: 'Detached' // This should be updated to use the actual input from the form
+    propertyType: inputs.propertyType 
   });
    
   // Calculate heat loss for each element (W)
