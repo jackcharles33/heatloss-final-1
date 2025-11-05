@@ -1,41 +1,64 @@
 import { useState } from 'react';
-import { Container, Box, Paper } from '@mui/material';
-import { PredictionForm } from './components/PredictionForm';
-import { ResultsDisplay } from './components/results/ResultsDisplay'; 
-import { calculateHeatLoss } from './utils/heatLossCalculator'; 
-import { HouseData } from './types/HouseData';
-import { CalculatorInputs } from './types/calculator';
+import { Container, Box, Paper, CircularProgress } from '@mui/material'; // Import CircularProgress
+import { PredictionForm } from './components/PredictionForm'; // <-- FIXED PATH
+import { ResultsDisplay } from './components/results/ResultsDisplay'; // <-- FIXED PATH
+// import { calculateHeatLoss } from './utils/heatLossCalculator'; // <-- We no longer use this
+import { HouseData } from './types/HouseData'; // <-- FIXED PATH
+// import { CalculatorInputs } from './types/calculator'; // <-- We no longer use this
 
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
+  const [isLoading, setIsLoading] = useState(false); // <-- Add loading state
+  const [error, setError] = useState<string | null>(null); // <-- Add error state
 
-  const handlePredict = (input: Partial<HouseData>) => {
+  const handlePredict = async (input: Partial<HouseData>) => {
+    setIsLoading(true);
+    setError(null);
+    setPrediction(null);
+    setCurrentInput(input);
+
+    // This is the 6-feature payload our new API expects
+    const apiPayload = {
+        size: input.size,
+        age: input.age,
+        floorType: input.floorType,
+        roofType: input.roofType,
+        wallType: input.wallType,
+        windowType: input.windowType,
+    };
+
     try {
-      const calculatorInputs: CalculatorInputs = {
-        floorArea: String(input.size || '100'), // This line is now correct
-        age: input.age || 'BETWEEN_1960_2000',
-        propertyType: input.propertyType || 'Semi-Detached / End-Terrace',
-        wallType: input.wallType || 'cavity-post60-290-310-filled',
-        windowType: input.windowType || 'wood-pvc-double',
-        floorType: input.floorType || 'concrete-75',
-        roofType: input.roofType || 'pitched-100',
-        stories: 2,
-        indoorTemp: 21,
-        glazingRatio: 20,
-        region: 'london',
-        postcode: '',
-      };
+      // This is the Vercel serverless function we just created
+      const response = await fetch('/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiPayload),
+      });
 
-      const result = calculateHeatLoss(calculatorInputs);
-      
-      setPrediction(result.totalHeatLoss);
-      setCurrentInput(input);
-      
-      return result.totalHeatLoss;
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API Error: ${response.statusText} - ${errText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // The API returns heatloss in Watts (W)
+        setPrediction(result.predicted_heatloss_w); 
+        return result.predicted_heatloss_w;
+      } else {
+        throw new Error(result.error || 'Prediction failed');
+      }
+
     } catch (err) {
       console.error('Error making prediction:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
       return 0;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,9 +71,27 @@ function App() {
       </Box>
       <Paper elevation={3} sx={{ backgroundColor: '#180048', borderRadius: '32px', p: 6, width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Box sx={{ width: '100%', maxWidth: '600px' }}>
-          <PredictionForm onPredict={handlePredict} />
+          {/* Pass down the isLoading state to the form */}
+          <PredictionForm onPredict={handlePredict} isLoading={isLoading} />
           
-          {prediction !== null && currentInput !== null && (
+          {/* Display error message if something went wrong */}
+          {error && (
+            <Box sx={{ width: '100%', mt: 4, color: '#f44336', textAlign: 'center' }}>
+              <p><strong>Error:</strong> {error}</p>
+              <p>Please check your inputs or try again.</p>
+            </Box>
+          )}
+
+          {/* Show a loading indicator */}
+          {isLoading && (
+             <Box sx={{ width: '100%', mt: 4, color: 'white', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <CircularProgress sx={{color: '#f050f8'}} />
+              <p>Calculating with ML Model...</p>
+            </Box>
+          )}
+
+          {/* Only show results when not loading and prediction is ready */}
+          {prediction !== null && currentInput !== null && !isLoading && !error && (
             <Box sx={{ width: '100%', mt: 4 }}>
               <ResultsDisplay prediction={prediction} inputs={currentInput} />
             </Box>

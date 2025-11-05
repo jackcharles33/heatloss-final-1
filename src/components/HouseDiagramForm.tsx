@@ -1,16 +1,17 @@
 import React from 'react';
 import { Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { PropertyTypeSelect } from './form/PropertyTypeSelect';
-import { PropertyAgeSelect } from './form/PropertyAgeSelect';
-import { FloorAreaInput } from './form/FloorAreaInput';
-import { FloorTypeSelect } from './form/FloorTypeSelect';
-import { WallTypeSelect } from './form/WallTypeSelect';
-import { WindowTypeSelect } from './form/WindowTypeSelect';
-import { RoofTypeSelect } from './form/RoofTypeSelect';
-import { HouseDiagram } from './HouseDiagram';
-import { SelectWrapper } from './styles/SelectWrapper';
+import { PropertyTypeSelect } from './form/PropertyTypeSelect'; // <-- FIXED PATH
+import { PropertyAgeSelect } from './form/PropertyAgeSelect'; // <-- FIXED PATH
+import { FloorAreaInput } from './form/FloorAreaInput'; // <-- FIXED PATH
+import { FloorTypeSelect } from './form/FloorTypeSelect'; // <-- FIXED PATH
+import { WallTypeSelect } from './form/WallTypeSelect'; // <-- FIXED PATH
+import { WindowTypeSelect } from './form/WindowTypeSelect'; // <-- FIXED PATH
+import { RoofTypeSelect } from './form/RoofTypeSelect'; // <-- FIXED PATH
+import { HouseDiagram } from './HouseDiagram'; // <-- FIXED PATH
+import { SelectWrapper } from './styles/SelectWrapper'; // <-- FIXED PATH
 
+// (Styled components remain the same)
 const HouseDiagramContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '600px',
@@ -28,13 +29,15 @@ const HouseDiagramContainer = styled(Box)(({ theme }) => ({
   }
 }));
 
+
 interface HouseDiagramFormProps {
   values: any;
   onChange: (event: any) => void;
   onSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean; // <-- Add this prop
 }
 
-export function HouseDiagramForm({ values, onChange, onSubmit }: HouseDiagramFormProps) {
+export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: HouseDiagramFormProps) {
   return (
     <Box 
       component="form" 
@@ -47,6 +50,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit }: HouseDiagramFor
         alignItems: 'center'
       }}
     >
+      {/* ... (Image box remains the same) ... */}
       <Box 
         component="img"
         src="https://octoenergy-production-media.s3.amazonaws.com/images/cosy_heat_pump_banner_.width-1200.png"
@@ -60,6 +64,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit }: HouseDiagramFor
           mb: 2
         }}
       />
+
 
       <Box sx={{ width: '600px' }}>
         <Box sx={{ 
@@ -102,6 +107,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit }: HouseDiagramFor
           type="submit" 
           variant="contained" 
           disableElevation
+          disabled={isLoading} // <-- Disable button when loading
           sx={{ 
             width: '100%',
             height: '48px',
@@ -113,10 +119,16 @@ export function HouseDiagramForm({ values, onChange, onSubmit }: HouseDiagramFor
             textTransform: 'none',
             '&:hover': {
               backgroundColor: '#c14b8b'
+            },
+            '&:disabled': { // <-- Style for disabled button
+              backgroundColor: '#555',
+              color: '#999',
+              opacity: 0.7
             }
           }}
         >
-          Calculate heat loss
+          {/* Change text when loading */}
+          {isLoading ? 'Calculating...' : 'Calculate heat loss'}
         </Button>
       </Box>
     </Box>
