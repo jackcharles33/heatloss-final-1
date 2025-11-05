@@ -30,7 +30,8 @@ function App() {
 
     try {
       // This is the Vercel serverless function we just created
-      const response = await fetch('/api/predict', {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBase}/api/predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
