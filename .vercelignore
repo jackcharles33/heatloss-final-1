@@ -1,0 +1,8 @@
+# Exclude Python API from Vercel deployment to avoid Serverless Function packaging
+api/
+requirements.txt
+
+# Optional: exclude server code and migrations not needed for static frontend
+server/
+supabase/
+
