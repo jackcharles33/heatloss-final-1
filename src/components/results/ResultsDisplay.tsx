@@ -1,8 +1,6 @@
 import { Box, Typography } from '@mui/material';
-import { useState, useEffect } from 'react';
 import { HeatLossSpectrum } from './HeatLossSpectrum';
 import { TrafficLight } from './TrafficLight';
-import { getAverageAccuracy, calculateErrorMargin } from '../../utils/accuracyCalculations';
 import { ArrowLeftRight } from 'lucide-react';
 import { BaseHouseData } from '../../types/HouseData';
 
@@ -11,16 +9,13 @@ interface ResultsDisplayProps {
   inputs: Partial<BaseHouseData>;
 }
 
-export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
-  const [errorMargin, setErrorMargin] = useState<number>(prediction * 0.075);
+// --- THIS IS OUR NEW, FIXED ERROR MARGIN ---
+// From our tuned 88.4% R² model's Mean Absolute Error (MAE)
+const MODEL_MAE = 665.58;
 
-  useEffect(() => {
-    const updateErrorMargin = async () => {
-      const accuracy = await getAverageAccuracy();
-      setErrorMargin(calculateErrorMargin(prediction, accuracy));
-    };
-    updateErrorMargin();
-  }, [prediction]);
+export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
+  
+
 
   return (
     <Box sx={{ width: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -51,7 +46,8 @@ export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
             Error Range
           </Typography>
         </Box>
-        <HeatLossSpectrum prediction={prediction} errorMargin={errorMargin} />
+        {/* Pass the new, fixed MAE to the spectrum component */}
+        <HeatLossSpectrum prediction={prediction} errorMargin={MODEL_MAE} />
       </Box>
     </Box>
   );
