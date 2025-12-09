@@ -11,23 +11,23 @@ interface ResultsDisplayProps {
 
 // --- THIS IS OUR NEW, FIXED ERROR MARGIN ---
 // From our tuned 88.4% R² model's Mean Absolute Error (MAE)
-const MODEL_MAE = 665.58;
+const MODEL_MAE = 966;
 
 export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
-  
+
 
 
   return (
     <Box sx={{ width: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <TrafficLight heatLoss={prediction} />
-      
-      <Box sx={{ 
+
+      <Box sx={{
         backgroundColor: '#180048',
         borderRadius: '24px',
         padding: '24px',
         width: '100%'
       }}>
-        <Box sx={{ 
+        <Box sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -35,8 +35,8 @@ export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
           mb: 2
         }}>
           <ArrowLeftRight size={16} color="#ffffff" />
-          <Typography 
-            sx={{ 
+          <Typography
+            sx={{
               fontSize: '18px',
               fontWeight: 600,
               color: '#ffffff',

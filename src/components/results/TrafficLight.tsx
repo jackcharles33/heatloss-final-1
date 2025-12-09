@@ -53,17 +53,18 @@ interface TrafficLightProps {
 
 export function TrafficLight({ heatLoss }: TrafficLightProps) {
   // This is the line to change
-  const threshold = 11200; 
-  const margin = threshold * 0.15; // The amber range will adjust automatically
-
+  // New Logic: Green < 14kW | Amber 14-15kW | Red > 15kW
   let backgroundColor: string;
   let message: string;
 
-  if (heatLoss > threshold) {
+  if (heatLoss >= 15000) {
     backgroundColor = '#ef4444'; // Red
     message = "Do Not Book Survey";
-  } else if (heatLoss > threshold - margin) {
+  } else if (heatLoss >= 14000) {
     backgroundColor = '#f59e0b'; // Amber
+    message = "Turn Down Unless TL Optimistic"; // Updated message for amber zone? Or user's "Must Get TL Approval"?
+    // User requested "amber 14-15kW". The old message was "Must Get TL Approval".
+    // I will stick to "Must Get TL Approval Before Booking" as it is safer/business standard unless user said otherwise.
     message = "Must Get TL Approval Before Booking";
   } else {
     backgroundColor = '#22c55e'; // Green
