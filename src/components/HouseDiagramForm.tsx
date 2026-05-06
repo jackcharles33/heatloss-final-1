@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { PropertyTypeSelect } from './form/PropertyTypeSelect'; // <-- FIXED PATH
+// import { PropertyTypeSelect } from './form/PropertyTypeSelect'; // REMOVED
 import { PropertyAgeSelect } from './form/PropertyAgeSelect'; // <-- FIXED PATH
 import { FloorAreaInput } from './form/FloorAreaInput'; // <-- FIXED PATH
 import { FloorTypeSelect } from './form/FloorTypeSelect'; // <-- FIXED PATH
@@ -39,8 +39,8 @@ interface HouseDiagramFormProps {
 
 export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: HouseDiagramFormProps) {
   return (
-    <Box 
-      component="form" 
+    <Box
+      component="form"
       onSubmit={onSubmit}
       sx={{
         display: 'flex',
@@ -51,7 +51,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
       }}
     >
       {/* ... (Image box remains the same) ... */}
-      <Box 
+      <Box
         component="img"
         src="https://octoenergy-production-media.s3.amazonaws.com/images/cosy_heat_pump_banner_.width-1200.png"
         alt="House illustration"
@@ -67,16 +67,16 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
 
 
       <Box sx={{ width: '600px' }}>
-        <Box sx={{ 
+        <Box sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(2, 1fr)', // Change to 2 columns
           gap: '24px',
           width: '100%',
           '& .MuiFormControl-root': {
             width: '100%'
           }
         }}>
-          <PropertyTypeSelect value={values.propertyType} onChange={onChange} />
+          {/* PropertyTypeSelect REMOVED - Not used in training model */}
           <PropertyAgeSelect value={values.age} onChange={onChange} />
           <FloorAreaInput value={values.size} onChange={onChange} />
         </Box>
@@ -85,7 +85,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '32px', width: '600px' }}>
         <HouseDiagramContainer>
           <HouseDiagram />
-          
+
           <SelectWrapper sx={{ top: '35%', left: '30%' }}>
             <RoofTypeSelect value={values.roofType} onChange={onChange} />
           </SelectWrapper>
@@ -103,12 +103,12 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
           </SelectWrapper>
         </HouseDiagramContainer>
 
-        <Button 
-          type="submit" 
-          variant="contained" 
+        <Button
+          type="submit"
+          variant="contained"
           disableElevation
           disabled={isLoading} // <-- Disable button when loading
-          sx={{ 
+          sx={{
             width: '100%',
             height: '48px',
             borderRadius: '10px',

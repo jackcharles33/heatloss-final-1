@@ -22,7 +22,7 @@ export function PredictionForm({ onPredict, isLoading }: PredictionFormProps) {
   const [formData, setFormData] = useState<FormData>({
     size: '100',
     age: 'BETWEEN_1960_2000',
-    propertyType: 'Semi-Detached / End-Terrace',
+    propertyType: 'Detached', // Default hidden value
     wallType: 'cavity-post60-290-310-filled',
     floorType: 'concrete-75',
     windowType: 'wood-pvc-double', // This value must match a key in your model's training
@@ -53,8 +53,8 @@ export function PredictionForm({ onPredict, isLoading }: PredictionFormProps) {
 
   return (
     <Container maxWidth="lg">
-      <HouseDiagramForm 
-        values={formData} 
+      <HouseDiagramForm
+        values={formData}
         onChange={handleChange}
         onSubmit={handleSubmit}
         isLoading={isLoading} // <-- Pass isLoading to the diagram form

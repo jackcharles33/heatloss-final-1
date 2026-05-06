@@ -18,7 +18,8 @@ function App() {
     setPrediction(null);
     setCurrentInput(input);
 
-    // This is the 6-feature payload our new API expects
+    // --- THIS IS THE FIX ---
+    // This is the *7-feature* payload our new API expects
     const apiPayload = {
         size: input.size,
         age: input.age,
@@ -26,6 +27,7 @@ function App() {
         roofType: input.roofType,
         wallType: input.wallType,
         windowType: input.windowType,
+        propertyType: input.propertyType // <-- ADDED THE 7TH FEATURE
     };
 
     try {
