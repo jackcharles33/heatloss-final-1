@@ -1,3 +1,40 @@
+import { PropertyAge } from '../types/HouseData';
+
+// Maps each property age band to the wall type keys that are valid for that era
+export const wallTypesByAge: Record<PropertyAge, string[]> = {
+  PRE_1960: [
+    'solid-brick-102',
+    'solid-brick-228',
+    'solid-brick-343',
+    'cavity-pre60-unfilled',
+    'cavity-pre60-filled',
+  ],
+  BETWEEN_1960_2000: [
+    'cavity-post60-310',
+    'cavity-post60-290-310-filled',
+    'cavity-post60-290-310-unfilled',
+    'cavity-post60-under290-filled',
+    'cavity-post60-under290-unfilled',
+    'timber-frame',
+  ],
+  BETWEEN_2000_2008: [
+    'cavity-post60-310',
+    'cavity-post60-290-310-filled',
+    'cavity-post60-290-310-unfilled',
+    'cavity-post60-under290-filled',
+    'cavity-post60-under290-unfilled',
+    'timber-frame',
+  ],
+  POST_2008: [
+    'cavity-post60-310',
+    'cavity-post60-290-310-filled',
+    'cavity-post60-290-310-unfilled',
+    'cavity-post60-under290-filled',
+    'cavity-post60-under290-unfilled',
+    'timber-frame',
+  ],
+};
+
 export const wallTypes = {
   // --- BRICK (Values Confirmed) ---
   'solid-brick-102': { name: 'Solid Brick 102mm', uValue: 2.97 },

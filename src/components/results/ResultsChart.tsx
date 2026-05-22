@@ -19,7 +19,12 @@ export function ResultsChart({ prediction }: ResultsChartProps) {
         Heat Loss Analysis
       </Typography>
 
-      <HeatLossSpectrum prediction={prediction} errorMargin={prediction * 0.1} />
+      <HeatLossSpectrum
+        prediction={prediction}
+        lowerBound={Math.round(prediction * 0.88)}
+        upperBound={Math.round(prediction * 1.12)}
+        confidenceScore={88}
+      />
       
       <Box sx={{ height: 300 }}>
         <ResponsiveContainer width="100%" height="100%">

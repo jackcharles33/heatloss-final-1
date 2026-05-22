@@ -1,21 +1,25 @@
 import { Box, Typography } from '@mui/material';
 import { HeatLossSpectrum } from './HeatLossSpectrum';
 import { TrafficLight } from './TrafficLight';
-import { ArrowLeftRight } from 'lucide-react';
+import { ActivitySquare } from 'lucide-react';
 import { BaseHouseData } from '../../types/HouseData';
 
+// Fallback interval if the API doesn't return bounds (±12% of prediction)
+const FALLBACK_MARGIN_FRAC = 0.12;
+const FALLBACK_CONFIDENCE  = 88;
+
 interface ResultsDisplayProps {
-  prediction: number;
-  inputs: Partial<BaseHouseData>;
+  prediction:      number;
+  inputs:          Partial<BaseHouseData>;
+  confidenceScore: number | null;
+  lowerBound:      number | null;
+  upperBound:      number | null;
 }
 
-// --- THIS IS OUR NEW, FIXED ERROR MARGIN ---
-// From our tuned 88.4% R² model's Mean Absolute Error (MAE)
-const MODEL_MAE = 966;
-
-export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
-
-
+export function ResultsDisplay({ prediction, confidenceScore, lowerBound, upperBound }: ResultsDisplayProps) {
+  const conf  = confidenceScore ?? FALLBACK_CONFIDENCE;
+  const lower = lowerBound      ?? Math.round(prediction * (1 - FALLBACK_MARGIN_FRAC));
+  const upper = upperBound      ?? Math.round(prediction * (1 + FALLBACK_MARGIN_FRAC * 1.1));
 
   return (
     <Box sx={{ width: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -34,7 +38,7 @@ export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
           gap: '8px',
           mb: 2
         }}>
-          <ArrowLeftRight size={16} color="#ffffff" />
+          <ActivitySquare size={16} color="#ffffff" />
           <Typography
             sx={{
               fontSize: '18px',
@@ -43,11 +47,15 @@ export function ResultsDisplay({ prediction }: ResultsDisplayProps) {
               fontFamily: 'Montserrat, sans-serif'
             }}
           >
-            Error Range
+            Confidence Interval
           </Typography>
         </Box>
-        {/* Pass the new, fixed MAE to the spectrum component */}
-        <HeatLossSpectrum prediction={prediction} errorMargin={MODEL_MAE} />
+        <HeatLossSpectrum
+          prediction={prediction}
+          lowerBound={lower}
+          upperBound={upper}
+          confidenceScore={conf}
+        />
       </Box>
     </Box>
   );

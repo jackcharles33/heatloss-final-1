@@ -1,6 +1,8 @@
 import { Select } from '@/components/ui/select';
 import { wallTypes, windowTypes, floorTypes, roofTypes } from '../../constants/buildingData';
+import { wallTypesByAge } from '../../constants/construction';
 import { CalculatorInputs } from '../../types/calculator';
+import { PropertyAge } from '../../types/HouseData';
 
 interface ConstructionTabProps {
   inputs: CalculatorInputs;
@@ -8,10 +10,16 @@ interface ConstructionTabProps {
 }
 
 export function ConstructionTab({ inputs, onInputChange }: ConstructionTabProps) {
-  const wallOptions = Object.entries(wallTypes).map(([key, { name }]) => ({
-    value: key,
-    label: name
-  }));
+  const validWallKeys = inputs.age
+    ? wallTypesByAge[inputs.age as PropertyAge] ?? null
+    : null;
+
+  const wallOptions = Object.entries(wallTypes)
+    .filter(([key]) => !validWallKeys || validWallKeys.includes(key))
+    .map(([key, { name }]) => ({
+      value: key,
+      label: name
+    }));
 
   const windowOptions = Object.entries(windowTypes).map(([key, { name }]) => ({
     value: key,

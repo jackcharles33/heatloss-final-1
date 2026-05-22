@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 // import { PropertyTypeSelect } from './form/PropertyTypeSelect'; // REMOVED
+import { AddressLookup } from './AddressLookup';
 import { PropertyAgeSelect } from './form/PropertyAgeSelect'; // <-- FIXED PATH
 import { FloorAreaInput } from './form/FloorAreaInput'; // <-- FIXED PATH
 import { FloorTypeSelect } from './form/FloorTypeSelect'; // <-- FIXED PATH
@@ -34,10 +35,20 @@ interface HouseDiagramFormProps {
   values: any;
   onChange: (event: any) => void;
   onSubmit: (e: React.FormEvent) => void;
-  isLoading: boolean; // <-- Add this prop
+  isLoading: boolean;
+  onPopulate: (epcValues: any, populatedFields: Set<string>, postcode: string, address: string) => void;
+  epcPopulatedFields: Set<string> | null;
+  onClearResults?: () => void;
 }
 
-export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: HouseDiagramFormProps) {
+export function HouseDiagramForm({ values, onChange, onSubmit, isLoading, onPopulate, epcPopulatedFields, onClearResults }: HouseDiagramFormProps) {
+  // Returns a red-ring sx object for fields the EPC didn't supply data for.
+  // Only active after an EPC autofill has been attempted (epcPopulatedFields !== null).
+  const missingRing = (field: string): object =>
+    epcPopulatedFields !== null && !epcPopulatedFields.has(field)
+      ? { '& .MuiOutlinedInput-root': { boxShadow: '0 0 0 2px rgba(244,67,54,0.7)', borderRadius: '10px' } }
+      : {};
+
   return (
     <Box
       component="form"
@@ -50,7 +61,6 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
         alignItems: 'center'
       }}
     >
-      {/* ... (Image box remains the same) ... */}
       <Box
         component="img"
         src="https://octoenergy-production-media.s3.amazonaws.com/images/cosy_heat_pump_banner_.width-1200.png"
@@ -64,21 +74,28 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
           mb: 2
         }}
       />
-
-
+      
       <Box sx={{ width: '600px' }}>
+        {/* Address lookup moved here */}
+        <AddressLookup onPopulate={onPopulate} onClearResults={onClearResults} />
+
         <Box sx={{
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)', // Change to 2 columns
           gap: '24px',
           width: '100%',
+          mt: 3,
           '& .MuiFormControl-root': {
             width: '100%'
           }
         }}>
           {/* PropertyTypeSelect REMOVED - Not used in training model */}
-          <PropertyAgeSelect value={values.age} onChange={onChange} />
-          <FloorAreaInput value={values.size} onChange={onChange} />
+          <Box sx={missingRing('age')}>
+            <PropertyAgeSelect value={values.age} onChange={onChange} />
+          </Box>
+          <Box sx={missingRing('size')}>
+            <FloorAreaInput value={values.size} onChange={onChange} />
+          </Box>
         </Box>
       </Box>
 
@@ -86,19 +103,19 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
         <HouseDiagramContainer>
           <HouseDiagram />
 
-          <SelectWrapper sx={{ top: '35%', left: '30%' }}>
+          <SelectWrapper sx={{ top: '35%', left: '30%', ...missingRing('roofType') }}>
             <RoofTypeSelect value={values.roofType} onChange={onChange} />
           </SelectWrapper>
 
-          <SelectWrapper sx={{ top: '50%', left: '2%' }}>
-            <WallTypeSelect value={values.wallType} onChange={onChange} />
+          <SelectWrapper sx={{ top: '50%', left: '2%', ...missingRing('wallType') }}>
+            <WallTypeSelect value={values.wallType} onChange={onChange} propertyAge={values.age} />
           </SelectWrapper>
 
-          <SelectWrapper sx={{ top: '50%', right: '2%' }}>
+          <SelectWrapper sx={{ top: '50%', right: '2%', ...missingRing('windowType') }}>
             <WindowTypeSelect value={values.windowType} onChange={onChange} />
           </SelectWrapper>
 
-          <SelectWrapper sx={{ bottom: '45px', left: '30%' }}>
+          <SelectWrapper sx={{ bottom: '45px', left: '30%', ...missingRing('floorType') }}>
             <FloorTypeSelect value={values.floorType} onChange={onChange} />
           </SelectWrapper>
         </HouseDiagramContainer>
@@ -127,8 +144,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading }: Hous
             }
           }}
         >
-          {/* Change text when loading */}
-          {isLoading ? 'Calculating...' : 'Calculate heat loss'}
+          {isLoading ? 'Calculating...' : 'Calculate Heat Loss'}
         </Button>
       </Box>
     </Box>

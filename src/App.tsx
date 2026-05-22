@@ -5,17 +5,24 @@ import { ResultsDisplay } from './components/results/ResultsDisplay'; // <-- FIX
 // import { calculateHeatLoss } from './utils/heatLossCalculator'; // <-- We no longer use this
 import { HouseData } from './types/HouseData'; // <-- FIXED PATH
 // import { CalculatorInputs } from './types/calculator'; // <-- We no longer use this
+import { saveCalculation } from './lib/supabase';
 
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
+  const [confidenceScore, setConfidenceScore] = useState<number | null>(null);
+  const [lowerBound, setLowerBound] = useState<number | null>(null);
+  const [upperBound, setUpperBound] = useState<number | null>(null);
   const [currentInput, setCurrentInput] = useState<Partial<HouseData> | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // <-- Add loading state
-  const [error, setError] = useState<string | null>(null); // <-- Add error state
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handlePredict = async (input: Partial<HouseData>) => {
     setIsLoading(true);
     setError(null);
     setPrediction(null);
+    setConfidenceScore(null);
+    setLowerBound(null);
+    setUpperBound(null);
     setCurrentInput(input);
 
     // --- THIS IS THE FIX ---
@@ -49,8 +56,28 @@ function App() {
       const result = await response.json();
 
       if (result.success) {
-        // The API returns heatloss in Watts (W)
-        setPrediction(result.predicted_heatloss_w); 
+        setPrediction(result.predicted_heatloss_w);
+        setConfidenceScore(result.confidence_score ?? null);
+        setLowerBound(result.lower_bound_w ?? null);
+        setUpperBound(result.upper_bound_w ?? null);
+
+        // Persist to Supabase (non-blocking — failures are logged, not surfaced)
+        saveCalculation({
+          postcode:            (input as any)._postcode  || undefined,
+          address:             (input as any)._address   || undefined,
+          size:                input.size as number,
+          age:                 input.age,
+          property_type:       input.propertyType,
+          wall_type:           input.wallType,
+          floor_type:          input.floorType,
+          window_type:         input.windowType,
+          roof_type:           input.roofType,
+          predicted_heatloss_w: result.predicted_heatloss_w,
+          confidence_score:    result.confidence_score,
+          lower_bound_w:       result.lower_bound_w,
+          upper_bound_w:       result.upper_bound_w,
+        });
+
         return result.predicted_heatloss_w;
       } else {
         throw new Error(result.error || 'Prediction failed');
@@ -75,7 +102,16 @@ function App() {
       <Paper elevation={3} sx={{ backgroundColor: '#180048', borderRadius: '32px', p: 6, width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Box sx={{ width: '100%', maxWidth: '600px' }}>
           {/* Pass down the isLoading state to the form */}
-          <PredictionForm onPredict={handlePredict} isLoading={isLoading} />
+          <PredictionForm
+            onPredict={handlePredict}
+            isLoading={isLoading}
+            onEpcPopulated={() => {
+              setPrediction(null);
+              setConfidenceScore(null);
+              setLowerBound(null);
+              setUpperBound(null);
+            }}
+          />
           
           {/* Display error message if something went wrong */}
           {error && (
@@ -96,7 +132,13 @@ function App() {
           {/* Only show results when not loading and prediction is ready */}
           {prediction !== null && currentInput !== null && !isLoading && !error && (
             <Box sx={{ width: '100%', mt: 4 }}>
-              <ResultsDisplay prediction={prediction} inputs={currentInput} />
+              <ResultsDisplay
+                prediction={prediction}
+                inputs={currentInput}
+                confidenceScore={confidenceScore}
+                lowerBound={lowerBound}
+                upperBound={upperBound}
+              />
             </Box>
           )}
         </Box>
