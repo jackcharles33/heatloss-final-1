@@ -24,6 +24,9 @@ export interface HeatLossCalculation {
   window_type?: string;
   roof_type?: string;
   predicted_heatloss_w?: number;
+  safety_estimate_w?: number;
+  is_unserviceable_risk?: boolean;
+  is_borderline?: boolean;
   confidence_score?: number;
   lower_bound_w?: number;
   upper_bound_w?: number;

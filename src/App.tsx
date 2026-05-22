@@ -62,20 +62,29 @@ function App() {
         setUpperBound(result.upper_bound_w ?? null);
 
         // Persist to Supabase (non-blocking — failures are logged, not surfaced)
-        saveCalculation({
-          postcode:            (input as any)._postcode  || undefined,
-          address:             (input as any)._address   || undefined,
-          size:                input.size as number,
-          age:                 input.age,
-          property_type:       input.propertyType,
-          wall_type:           input.wallType,
-          floor_type:          input.floorType,
-          window_type:         input.windowType,
-          roof_type:           input.roofType,
+        console.log('[App] API result:', JSON.stringify({
           predicted_heatloss_w: result.predicted_heatloss_w,
-          confidence_score:    result.confidence_score,
-          lower_bound_w:       result.lower_bound_w,
-          upper_bound_w:       result.upper_bound_w,
+          confidence_score: result.confidence_score,
+          lower_bound_w: result.lower_bound_w,
+          upper_bound_w: result.upper_bound_w,
+        }));
+        saveCalculation({
+          postcode:              (input as any)._postcode  || undefined,
+          address:               (input as any)._address   || undefined,
+          size:                  input.size as number,
+          age:                   input.age,
+          property_type:         input.propertyType,
+          wall_type:             input.wallType,
+          floor_type:            input.floorType,
+          window_type:           input.windowType,
+          roof_type:             input.roofType,
+          predicted_heatloss_w:  Number(result.predicted_heatloss_w)  || undefined,
+          safety_estimate_w:     Number(result.safety_estimate_w)     || undefined,
+          is_unserviceable_risk: result.is_unserviceable_risk ?? undefined,
+          is_borderline:         result.is_borderline         ?? undefined,
+          confidence_score:      Number(result.confidence_score)      || undefined,
+          lower_bound_w:         Number(result.lower_bound_w)         || undefined,
+          upper_bound_w:         Number(result.upper_bound_w)         || undefined,
         });
 
         return result.predicted_heatloss_w;
