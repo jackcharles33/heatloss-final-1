@@ -3,7 +3,6 @@ import { Container } from '@mui/material';
 import { PropertyAge, PropertyType } from '../types/HouseData'; // <-- FIXED PATH
 import { wallTypesByAge } from '../constants/construction';
 import { HouseDiagramForm } from './HouseDiagramForm'; // <-- FIXED PATH
-import { AddressLookup } from './AddressLookup'; // <-- IMPORTED
 
 
 interface FormData {
