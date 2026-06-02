@@ -1,11 +1,11 @@
 import { FormControl } from '@mui/material';
-import { PropertyAge } from '../../types/HouseData';
+import { PropertyAgeField } from '../../types/HouseData';
 import { FormLabel } from '../styles/FormLabel';
 import { CalendarRange } from 'lucide-react';
 import { Select } from '../ui/select';
 
 interface PropertyAgeSelectProps {
-  value: PropertyAge;
+  value: PropertyAgeField;
   onChange: (event: any) => void;
 }
 

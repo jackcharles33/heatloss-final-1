@@ -1,13 +1,13 @@
 import { FormControl } from '@mui/material';
 import { wallTypes } from '../../constants/buildingData';
 import { wallTypesByAge } from '../../constants/construction';
-import { PropertyAge } from '../../types/HouseData';
+import { PropertyAgeField } from '../../types/HouseData';
 import { Select } from '../ui/select';
 
 interface WallTypeSelectProps {
   value: string;
   onChange: (event: any) => void;
-  propertyAge?: PropertyAge;
+  propertyAge?: PropertyAgeField;
 }
 
 export function WallTypeSelect({ value, onChange, propertyAge }: WallTypeSelectProps) {
@@ -16,7 +16,7 @@ export function WallTypeSelect({ value, onChange, propertyAge }: WallTypeSelectP
     label: name
   }));
 
-  const ageKey = propertyAge || '';
+  const ageKey: PropertyAgeField = propertyAge || '';
   const options = ageKey
     ? allOptions.filter(opt => (wallTypesByAge[ageKey] || []).includes(opt.value))
     : allOptions;

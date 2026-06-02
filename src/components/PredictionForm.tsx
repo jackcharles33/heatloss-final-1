@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Container } from '@mui/material';
-import { PropertyAge, PropertyType } from '../types/HouseData'; // <-- FIXED PATH
+import { PropertyAgeField } from '../types/HouseData'; // <-- FIXED PATH
 import { wallTypesByAge } from '../constants/construction';
 import { HouseDiagramForm } from './HouseDiagramForm'; // <-- FIXED PATH
 
 
 interface FormData {
   size: string;
-  age: PropertyAge;
-  propertyType: PropertyType; // We still collect it, just don't send to the model
+  age: PropertyAgeField;
+  propertyType: string;
   wallType: string;
   floorType: string;
   windowType: string;
@@ -27,8 +27,8 @@ export function PredictionForm({ onPredict, isLoading, onEpcPopulated }: Predict
   const [epcAddress, setEpcAddress] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
     size: '',
-    age: '' as any,
-    propertyType: '' as any,
+    age: '',
+    propertyType: '',
     wallType: '',
     floorType: '',
     windowType: '',
@@ -39,11 +39,11 @@ export function PredictionForm({ onPredict, isLoading, onEpcPopulated }: Predict
     const { name, value } = e.target;
 
     if (name === 'age') {
-      const validWallTypes = wallTypesByAge[value as PropertyAge] ?? [];
+      const validWallTypes = wallTypesByAge[value as PropertyAgeField] ?? [];
       const currentWallStillValid = formData.wallType === '' || validWallTypes.includes(formData.wallType);
       setFormData(prev => ({
         ...prev,
-        age: value as PropertyAge,
+        age: value as PropertyAgeField,
         // Keep wall empty if not yet selected; reset to empty if current choice is invalid for new age
         wallType: currentWallStillValid ? prev.wallType : '',
       }));

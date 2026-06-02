@@ -1,4 +1,6 @@
-export type PropertyAge = '' | 'PRE_1960' | 'BETWEEN_1960_2000' | 'BETWEEN_2000_2008' | 'POST_2008';
+export type PropertyAge = 'PRE_1960' | 'BETWEEN_1960_2000' | 'BETWEEN_2000_2008' | 'POST_2008';
+// Form state allows empty string when no age has been selected yet
+export type PropertyAgeField = '' | PropertyAge;
 export type PropertyType = 'Detached' | 'Semi-Detached / End-Terrace' | 'End of Terrace' | 'Terrace' | 'Bungalow';
 export type WindowType = 'single' | 'double' | 'triple';
 
