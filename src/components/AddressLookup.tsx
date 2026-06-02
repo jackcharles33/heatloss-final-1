@@ -15,15 +15,15 @@ import {
 
 interface AddressLookupProps {
   onPopulate: (
-    epcData: {
+    epcData: Partial<{
       size: string;
-      age: any;
-      propertyType: any;
+      age: string;
+      propertyType: string;
       wallType: string;
       floorType: string;
       windowType: string;
       roofType: string;
-    },
+    }>,
     populatedFields: Set<string>,
     postcode: string,
     address: string
@@ -215,7 +215,10 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
       // Only pass fields that were actually populated from EPC data.
       // Fields left undefined won't overwrite the form's existing defaults,
       // and the red ring will highlight them for manual entry.
-      const epcValues: Record<string, string> = {};
+      const epcValues: Partial<{
+        size: string; age: string; propertyType: string;
+        wallType: string; floorType: string; windowType: string; roofType: string;
+      }> = {};
       if (age !== undefined) epcValues.age = age;
       if (size !== undefined) epcValues.size = size;
       if (propertyType !== undefined) epcValues.propertyType = propertyType;

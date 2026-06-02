@@ -16,8 +16,9 @@ export function WallTypeSelect({ value, onChange, propertyAge }: WallTypeSelectP
     label: name
   }));
 
-  const options = (propertyAge && propertyAge !== '')
-    ? allOptions.filter(opt => wallTypesByAge[propertyAge].includes(opt.value))
+  const ageKey = propertyAge || '';
+  const options = ageKey
+    ? allOptions.filter(opt => (wallTypesByAge[ageKey] || []).includes(opt.value))
     : allOptions;
 
   return (
