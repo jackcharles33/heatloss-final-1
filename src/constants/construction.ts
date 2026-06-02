@@ -1,4 +1,4 @@
-import { PropertyAge, PropertyAgeField } from '../types/HouseData';
+import { PropertyAgeField } from '../types/HouseData';
 
 // Maps each property age band to the wall type keys that are valid for that era
 export const wallTypesByAge: Record<PropertyAgeField, string[]> = {
