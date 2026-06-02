@@ -2,6 +2,7 @@ import { PropertyAge } from '../types/HouseData';
 
 // Maps each property age band to the wall type keys that are valid for that era
 export const wallTypesByAge: Record<PropertyAge, string[]> = {
+  '': [], // No age selected — show all wall types until user picks one
   PRE_1960: [
     'solid-brick-102',
     'solid-brick-228',

@@ -21,6 +21,7 @@ export function WindowTypeSelect({ value, onChange }: WindowTypeSelectProps) {
         onChange={onChange}
         options={options}
         variant="window"
+        placeholder="Select window type"
       />
     </FormControl>
   );

@@ -36,12 +36,13 @@ interface HouseDiagramFormProps {
   onChange: (event: any) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
+  isFormComplete: boolean;
   onPopulate: (epcValues: any, populatedFields: Set<string>, postcode: string, address: string) => void;
   epcPopulatedFields: Set<string> | null;
   onClearResults?: () => void;
 }
 
-export function HouseDiagramForm({ values, onChange, onSubmit, isLoading, onPopulate, epcPopulatedFields, onClearResults }: HouseDiagramFormProps) {
+export function HouseDiagramForm({ values, onChange, onSubmit, isLoading, isFormComplete, onPopulate, epcPopulatedFields, onClearResults }: HouseDiagramFormProps) {
   // Returns a red-ring sx object for fields the EPC didn't supply data for.
   // Only active after an EPC autofill has been attempted (epcPopulatedFields !== null).
   const missingRing = (field: string): object =>
@@ -124,7 +125,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading, onPopu
           type="submit"
           variant="contained"
           disableElevation
-          disabled={isLoading} // <-- Disable button when loading
+          disabled={isLoading || !isFormComplete}
           sx={{
             width: '100%',
             height: '48px',
@@ -144,7 +145,7 @@ export function HouseDiagramForm({ values, onChange, onSubmit, isLoading, onPopu
             }
           }}
         >
-          {isLoading ? 'Calculating...' : 'Calculate Heat Loss'}
+          {isLoading ? 'Calculating...' : !isFormComplete ? 'Fill all fields to calculate' : 'Calculate Heat Loss'}
         </Button>
       </Box>
     </Box>

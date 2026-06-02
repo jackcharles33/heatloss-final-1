@@ -29,6 +29,7 @@ export function PropertyAgeSelect({ value, onChange }: PropertyAgeSelectProps) {
         onChange={onChange}
         options={options}
         variant="property-age"
+        placeholder="Select property age"
       />
     </FormControl>
   );

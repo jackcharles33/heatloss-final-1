@@ -21,6 +21,7 @@ export function RoofTypeSelect({ value, onChange }: RoofTypeSelectProps) {
         onChange={onChange}
         options={options}
         variant="roof"
+        placeholder="Select roof type"
       />
     </FormControl>
   );

@@ -96,14 +96,16 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
       }
 
       // --- MAPPING ENGINE ---
-      // Track which fields had real EPC data (vs falling back to defaults)
+      // Track which fields had real EPC data.
+      // No fallback values — if the specific EPC field is missing, the field
+      // stays at its form default and the red ring highlights it for manual entry.
       const populated = new Set<string>();
 
-      // 1. Property Age
-      let age = 'BETWEEN_1960_2000';
-      const dateStr = certData.construction_date || certData.completion_date || certData.registration_date;
-      if (dateStr) {
-        const year = parseInt(dateStr.split('-')[0] || dateStr.split(' ')[0]);
+      // 1. Property Age — ONLY use construction_date, no fallbacks
+      let age: string | undefined;
+      const constructionDate = certData.construction_date;
+      if (constructionDate) {
+        const year = parseInt(constructionDate.split('-')[0] || constructionDate.split(' ')[0]);
         if (!isNaN(year)) {
           if (year < 1960) age = 'PRE_1960';
           else if (year >= 1960 && year < 2000) age = 'BETWEEN_1960_2000';
@@ -113,12 +115,15 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
         }
       }
 
-      // 2. Floor Area
-      const size = certData.total_floor_area ? Math.round(certData.total_floor_area).toString() : '100';
-      if (certData.total_floor_area) populated.add('size');
+      // 2. Floor Area — only if total_floor_area is present
+      let size: string | undefined;
+      if (certData.total_floor_area) {
+        size = Math.round(certData.total_floor_area).toString();
+        populated.add('size');
+      }
 
-      // 3. Property Type
-      let propertyType = 'Detached';
+      // 3. Property Type — only if we can definitively classify it
+      let propertyType: string | undefined;
       const epcPropType = String(certData.property_type || '').toLowerCase();
       const epcDwellingType = String(certData.dwelling_type || '').toLowerCase();
       if (epcPropType.includes('bungalow')) {
@@ -138,37 +143,44 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
         populated.add('propertyType');
       }
 
-      // 4. Wall Type
-      let wallType = 'cavity-post60-290-310-filled';
+      // 4. Wall Type — only if wall description is present and classifiable
+      let wallType: string | undefined;
       const wallDesc = String(certData.walls?.[0]?.description || '').toLowerCase();
       if (wallDesc.trim()) {
         if (wallDesc.includes('timber')) {
           wallType = 'timber-frame';
+          populated.add('wallType');
         } else if (wallDesc.includes('solid brick') || wallDesc.includes('solid stone') || wallDesc.includes('granite')) {
           wallType = 'solid-brick-228';
+          populated.add('wallType');
         } else if (wallDesc.includes('cavity')) {
           const hasInsulation = wallDesc.includes('insulation') || wallDesc.includes('filled');
-          wallType = age === 'PRE_1960'
+          wallType = (age === 'PRE_1960')
             ? (hasInsulation ? 'cavity-pre60-filled' : 'cavity-pre60-unfilled')
             : (hasInsulation ? 'cavity-post60-290-310-filled' : 'cavity-post60-290-310-unfilled');
+          populated.add('wallType');
         }
-        populated.add('wallType');
+        // If wall description exists but doesn't match any known pattern, leave unpopulated
       }
 
-      // 5. Floor Type
-      let floorType = 'concrete-75';
+      // 5. Floor Type — only if floor description is present
+      let floorType: string | undefined;
       const floorDesc = String(certData.floors?.[0]?.description || '').toLowerCase();
       if (floorDesc.trim()) {
         const isSuspended = floorDesc.includes('suspended') || floorDesc.includes('timber');
-        const floorRating = certData.floors?.[0]?.energy_efficiency_rating || 3;
-        const floorThicknessMap: Record<number, string> = { 1: '0', 2: '25', 3: '50', 4: '75', 5: '100' };
-        const floorThickness = floorThicknessMap[Math.min(5, Math.max(1, floorRating))] ?? '75';
-        floorType = `${isSuspended ? 'suspended' : 'concrete'}-${floorThickness}`;
-        populated.add('floorType');
+        const floorRating = certData.floors?.[0]?.energy_efficiency_rating;
+        if (floorRating != null) {
+          const floorThicknessMap: Record<number, string> = { 1: '0', 2: '25', 3: '50', 4: '75', 5: '100' };
+          const floorThickness = floorThicknessMap[Math.min(5, Math.max(1, floorRating))];
+          if (floorThickness != null) {
+            floorType = `${isSuspended ? 'suspended' : 'concrete'}-${floorThickness}`;
+            populated.add('floorType');
+          }
+        }
       }
 
-      // 6. Window Type
-      let windowType = 'wood-pvc-double';
+      // 6. Window Type — only if window description is present
+      let windowType: string | undefined;
       const windowDesc = String(certData.window?.description || '').toLowerCase();
       if (windowDesc.trim()) {
         const isLowE = windowDesc.includes('low-e') || windowDesc.includes('high performance');
@@ -178,16 +190,20 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
         populated.add('windowType');
       }
 
-      // 7. Roof Type
-      let roofType = 'pitched-100';
+      // 7. Roof Type — only if roof description is present
+      let roofType: string | undefined;
       const roofDesc = String(certData.roofs?.[0]?.description || '').toLowerCase();
       if (roofDesc.trim()) {
         const isFlat = roofDesc.includes('flat');
-        const roofRating = certData.roofs?.[0]?.energy_efficiency_rating || 3;
-        const roofThicknessMap: Record<number, string> = { 1: '0', 2: '50', 3: '100', 4: '200', 5: '300' };
-        const roofThickness = roofThicknessMap[Math.min(5, Math.max(1, roofRating))] ?? '100';
-        roofType = `${isFlat ? 'flat' : 'pitched'}-${roofThickness}`;
-        populated.add('roofType');
+        const roofRating = certData.roofs?.[0]?.energy_efficiency_rating;
+        if (roofRating != null) {
+          const roofThicknessMap: Record<number, string> = { 1: '0', 2: '50', 3: '100', 4: '200', 5: '300' };
+          const roofThickness = roofThicknessMap[Math.min(5, Math.max(1, roofRating))];
+          if (roofThickness != null) {
+            roofType = `${isFlat ? 'flat' : 'pitched'}-${roofThickness}`;
+            populated.add('roofType');
+          }
+        }
       }
 
       const fullAddress = [
@@ -196,9 +212,19 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
         certData.post_town,
       ].filter(Boolean).join(', ');
 
-      onPopulate({
-        size, age, propertyType, wallType, floorType, windowType, roofType
-      }, populated, postcode.trim().toUpperCase(), fullAddress);
+      // Only pass fields that were actually populated from EPC data.
+      // Fields left undefined won't overwrite the form's existing defaults,
+      // and the red ring will highlight them for manual entry.
+      const epcValues: Record<string, string> = {};
+      if (age !== undefined) epcValues.age = age;
+      if (size !== undefined) epcValues.size = size;
+      if (propertyType !== undefined) epcValues.propertyType = propertyType;
+      if (wallType !== undefined) epcValues.wallType = wallType;
+      if (floorType !== undefined) epcValues.floorType = floorType;
+      if (windowType !== undefined) epcValues.windowType = windowType;
+      if (roofType !== undefined) epcValues.roofType = roofType;
+
+      onPopulate(epcValues, populated, postcode.trim().toUpperCase(), fullAddress);
 
       setSuccessMsg(`Successfully populated fields for ${certData.address_line_1 || 'property'} from EPC data!`);
     } catch (err: any) {
@@ -247,11 +273,12 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
             '& .MuiInputLabel-root.Mui-focused': { color: '#d85c9c' },
           }}
           onKeyPress={(e) => {
-            if (e.key === 'Enter') handleSearch();
+            if (e.key === 'Enter') { e.preventDefault(); handleSearch(); }
           }}
         />
-        <Button 
-          variant="contained" 
+        <Button
+          type="button"
+          variant="contained"
           onClick={handleSearch}
           disabled={loading}
           sx={{ 
@@ -318,6 +345,7 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
           </FormControl>
 
           <Button
+            type="button"
             variant="contained"
             fullWidth
             onClick={handlePopulate}

@@ -16,7 +16,7 @@ export function WallTypeSelect({ value, onChange, propertyAge }: WallTypeSelectP
     label: name
   }));
 
-  const options = propertyAge
+  const options = (propertyAge && propertyAge !== '')
     ? allOptions.filter(opt => wallTypesByAge[propertyAge].includes(opt.value))
     : allOptions;
 
@@ -28,6 +28,7 @@ export function WallTypeSelect({ value, onChange, propertyAge }: WallTypeSelectP
         onChange={onChange}
         options={options}
         variant="wall"
+        placeholder="Select wall type"
       />
     </FormControl>
   );

@@ -21,6 +21,7 @@ export function FloorTypeSelect({ value, onChange }: FloorTypeSelectProps) {
         onChange={onChange}
         options={options}
         variant="floor"
+        placeholder="Select floor type"
       />
     </FormControl>
   );

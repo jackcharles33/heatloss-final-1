@@ -71,49 +71,12 @@ const RATIOS = {
 };
 
 /**
- * Confidence score: how well the model characterises this property type.
- * Based on production ML model analysis (R²=0.905, MAPE=9.5%).
- *
- *  85 % base — all properties
- *  +5  POST_2008    (Part L compliance means fabric is well-specified)
- *  +3  2000–2008    (Part L 2006 era, mostly well-known)
- *  +2  1960–2000    (standard cavity era)
- *  +3  typical size 60–180 m²   (bulk of training data)
- *  +1  200–250 m²               (edge but still well-represented)
- *  +2  post-60 cavity (most common, well-characterised U-values)
- *  +1  timber frame
- *  cap 93 %
+ * Physics-only fallback — no ML model available on Vercel.
+ * Confidence interval is estimated using a fixed ±15% margin (MAPE of the
+ * physics-only approach). This is less precise than the ML model's per-prediction
+ * quantile regression intervals, but honest about the limitation.
  */
-function computeConfidenceScore(wallType, age, size) {
-  // Honest base of 72 % — model MAPE 9.5 %, R² 0.905. Range: ~74–88 %.
-  let score = 72;
-
-  // ERA
-  if      (age === 'POST_2008')          score += 10;
-  else if (age === 'BETWEEN_2000_2008')  score += 7;
-  else if (age === 'BETWEEN_1960_2000')  score += 4;
-  else if (age === 'PRE_1960')           score += 2;
-  // UNKNOWN → no bonus
-
-  // SIZE
-  if      (size >= 60  && size <= 150) score += 5;
-  else if (size >  150 && size <= 220) score += 3;
-  else if (size >  220 && size <= 300) score += 1;
-
-  // WALL TYPE
-  const highCavity = ['cavity-post60-310','cavity-post60-290-310-filled','cavity-post60-under290-filled'];
-  const midCavity  = ['timber-frame','cavity-post60-290-310-unfilled','cavity-post60-under290-unfilled'];
-  const pre60      = ['cavity-pre60-filled','cavity-pre60-unfilled'];
-  const solid      = ['solid-brick-102','solid-brick-228','solid-brick-343'];
-
-  if      (highCavity.includes(wallType)) score += 4;
-  else if (midCavity.includes(wallType))  score += 3;
-  else if (pre60.includes(wallType))      score += 2;
-  else if (solid.includes(wallType))      score += 1;
-  // stone / concrete → no bonus
-
-  return Math.min(88, score);
-}
+const PHYSICS_MARGIN = 0.15; // ~15% average error for physics-only calc
 
 export default function handler(req, res) {
   if (req.method !== 'POST') {
@@ -168,25 +131,19 @@ export default function handler(req, res) {
     const totalHeatloss   = (wallLoss + windowLoss + floorLoss + roofLoss) * ageMult;
     const predictedWatts  = Math.round(totalHeatloss);
 
-    // Confidence interval
-    // marginFrac = (100 - score) × 0.013
-    //   → 93 % confidence ≈ ±9 %   → interval ~18 % wide
-    //   → 88 % confidence ≈ ±15 %  → interval ~32 % wide
-    //   → 85 % confidence ≈ ±19 %  → interval ~40 % wide
-    // Upper bound is slightly wider (×1.1) — heat loss errors are right-skewed.
-    const confidenceScore = computeConfidenceScore(wallType, age, size);
-    const marginFrac      = (100 - confidenceScore) * 0.013;
-    const lowerBoundW     = Math.round(predictedWatts * (1 - marginFrac));
-    const upperBoundW     = Math.round(predictedWatts * (1 + marginFrac * 1.1));
+    // Physics-only confidence interval — fixed margin (no ML quantile available here)
+    const lowerBoundW = Math.round(predictedWatts * (1 - PHYSICS_MARGIN));
+    const upperBoundW = Math.round(predictedWatts * (1 + PHYSICS_MARGIN));
 
-    console.log(`[/api/predict] size=${size}m², age=${age}, loss=${predictedWatts}W, conf=${confidenceScore}%`);
+    console.log(`[/api/predict] size=${size}m², age=${age}, loss=${predictedWatts}W (physics-only fallback)`);
 
     return res.status(200).json({
       success: true,
       predicted_heatloss_w: predictedWatts,
-      confidence_score:     confidenceScore,
+      confidence_score:     null, // Only available from ML model
       lower_bound_w:        lowerBoundW,
       upper_bound_w:        upperBoundW,
+      is_physics_fallback:  true,
     });
   } catch (err) {
     console.error('[/api/predict] Error:', err);

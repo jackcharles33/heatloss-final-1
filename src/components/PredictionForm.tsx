@@ -26,13 +26,13 @@ export function PredictionForm({ onPredict, isLoading, onEpcPopulated }: Predict
   const [epcPostcode, setEpcPostcode] = useState<string>('');
   const [epcAddress, setEpcAddress] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
-    size: '100',
-    age: 'BETWEEN_1960_2000',
-    propertyType: 'Detached', // Default hidden value
-    wallType: 'cavity-post60-290-310-filled',
-    floorType: 'concrete-75',
-    windowType: 'wood-pvc-double', // This value must match a key in your model's training
-    roofType: 'pitched-100' // This value must match a key in your model's training
+    size: '',
+    age: '' as any,
+    propertyType: '' as any,
+    wallType: '',
+    floorType: '',
+    windowType: '',
+    roofType: ''
   });
 
   const handleChange = (e: any) => {
@@ -40,11 +40,12 @@ export function PredictionForm({ onPredict, isLoading, onEpcPopulated }: Predict
 
     if (name === 'age') {
       const validWallTypes = wallTypesByAge[value as PropertyAge] ?? [];
-      const currentWallStillValid = validWallTypes.includes(formData.wallType);
+      const currentWallStillValid = formData.wallType === '' || validWallTypes.includes(formData.wallType);
       setFormData(prev => ({
         ...prev,
         age: value as PropertyAge,
-        wallType: currentWallStillValid ? prev.wallType : (validWallTypes[0] ?? prev.wallType),
+        // Keep wall empty if not yet selected; reset to empty if current choice is invalid for new age
+        wallType: currentWallStillValid ? prev.wallType : '',
       }));
     } else {
       setFormData(prev => ({
@@ -54,9 +55,14 @@ export function PredictionForm({ onPredict, isLoading, onEpcPopulated }: Predict
     }
   };
 
+  const isFormComplete = Boolean(
+    formData.size && formData.age &&
+    formData.wallType && formData.floorType && formData.windowType && formData.roofType
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLoading) return; // <-- Prevent submit while loading
+    if (isLoading || !isFormComplete) return;
     try {
       onPredict({
         ...formData,
@@ -78,6 +84,7 @@ export function PredictionForm({ onPredict, isLoading, onEpcPopulated }: Predict
         onChange={handleChange}
         onSubmit={handleSubmit}
         isLoading={isLoading}
+        isFormComplete={isFormComplete}
         epcPopulatedFields={epcPopulatedFields}
         onClearResults={onEpcPopulated}
         onPopulate={(epcValues, populated, postcode, address) => {

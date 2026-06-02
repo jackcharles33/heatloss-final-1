@@ -26,6 +26,7 @@ export function FloorAreaInput({ value, onChange }: FloorAreaInputProps) {
         type="number"
         value={value}
         onChange={onChange}
+        placeholder="Enter floor area"
         endAdornment={<span style={{ opacity: 0.7 }}>m²</span>}
         sx={{ 
           height: '44px',

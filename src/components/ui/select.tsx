@@ -4,10 +4,11 @@ import { ChevronDown } from 'lucide-react';
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options: { value: string; label: string }[];
   variant?: 'wall' | 'roof' | 'window' | 'floor' | 'property-type' | 'property-age';
+  placeholder?: string;
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ options, className, variant, ...props }, ref) => {
+  ({ options, className, variant, placeholder, ...props }, ref) => {
     const getBackgroundColor = () => {
       switch (variant) {
         case 'wall':
@@ -33,12 +34,20 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           {...props}
           className="w-full text-white rounded-lg px-4 py-2.5 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#d85c9c] pr-10 h-[42px]"
-          style={{ backgroundColor: getBackgroundColor() }}
+          style={{
+            backgroundColor: getBackgroundColor(),
+            ...(props.value === '' ? { color: 'rgba(255,255,255,0.45)' } : {})
+          }}
         >
+          {placeholder && (
+            <option value="" disabled style={{ color: 'rgba(255,255,255,0.45)', backgroundColor: getBackgroundColor() }}>
+              {placeholder}
+            </option>
+          )}
           {options.map(({ value, label }) => (
-            <option 
-              key={value} 
-              value={value} 
+            <option
+              key={value}
+              value={value}
               className="text-white py-2.5"
               style={{ backgroundColor: getBackgroundColor() }}
             >
