@@ -86,7 +86,14 @@ export function PredictionForm({ onPredict, isLoading, onEpcPopulated }: Predict
         isLoading={isLoading}
         isFormComplete={isFormComplete}
         epcPopulatedFields={epcPopulatedFields}
-        onClearResults={onEpcPopulated}
+        onClearResults={() => {
+          // Reset all form fields to empty when a new search begins
+          setFormData({ size: '', age: '', propertyType: '', wallType: '', floorType: '', windowType: '', roofType: '' });
+          setEpcPopulatedFields(null);
+          setEpcPostcode('');
+          setEpcAddress('');
+          onEpcPopulated?.();
+        }}
         onPopulate={(epcValues, populated, postcode, address) => {
           setFormData(prev => ({ ...prev, ...epcValues }));
           setEpcPopulatedFields(populated);

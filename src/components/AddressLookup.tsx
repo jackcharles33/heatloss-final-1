@@ -78,6 +78,7 @@ export function AddressLookup({ onPopulate, onClearResults }: AddressLookupProps
 
   const handlePopulate = async () => {
     if (!selectedCert) return;
+    onClearResults?.();   // reset all fields to empty before populating
     setError(null);
     setSuccessMsg(null);
     setLoading(true);
